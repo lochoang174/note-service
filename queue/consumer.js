@@ -15,23 +15,23 @@ const receiveQueue = async () => {
     // Assert the queues
     await channel.assertQueue(signupQueue, { durable: false });
     // await channel.assertQueue(acceptQueue, { durable: false });
-    await channel.assertQueue(acceptQueue, { durable: false });
-    channel.consume(acceptQueue, async (msg) => {
-      if (msg !== null) {
-        console.log("Received message from accept_queue:", msg.content.toString());
+    // await channel.assertQueue(acceptQueue, { durable: false });
+    // channel.consume(acceptQueue, async (msg) => {
+    //   if (msg !== null) {
+    //     console.log("Received message from accept_queue:", msg.content.toString());
         
-        try {
-          const data = JSON.parse(msg.content.toString());
-          const { userId, noteId } = data;
+    //     try {
+    //       const data = JSON.parse(msg.content.toString());
+    //       const { userId, noteId } = data;
           
-          Sharing.updateOne({ account: userId }, { $push: { noteId: noteId } });          
-          // You can now use userId and noteId for further processing
+    //       Sharing.updateOne({ account: userId }, { $push: { noteId: noteId } });          
+    //       // You can now use userId and noteId for further processing
           
-        } catch (err) {
-          console.error('Error processing accept message:', err);
-        }
-      }
-    }, { noAck: true });
+    //     } catch (err) {
+    //       console.error('Error processing accept message:', err);
+    //     }
+    //   }
+    // }, { noAck: true });
 
     // Consume from signup queue
     channel.consume(signupQueue, async (msg) => {
@@ -64,5 +64,6 @@ const receiveQueue = async () => {
     console.error('Error:', error);
   }
 };
+
 
 module.exports = receiveQueue;

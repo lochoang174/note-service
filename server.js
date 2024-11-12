@@ -7,6 +7,13 @@ let connectToDatabase = require('./db'); // Import file db.js
 let app = express();
 const receiveQueue = require('./queue/consumer');
 const note = require("./routes/Note.route")
+const cors = require('cors');
+
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+})); // Enable CORS for all routes with full access
 app.use(bodyParser.json());
 app.use("/",note)
 

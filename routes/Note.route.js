@@ -19,7 +19,46 @@ router.post('/', async (req, res) => {
         res.status(500).json({ message: 'Error creating note', error: error.message });
     }
 });
-
+router.get('/accept', async (req, res) => {
+    try {
+        const { userId, noteId } = req.query;
+  
+        // Validate input
+        if (!userId || !noteId) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'userId and noteId are required' 
+            });
+        }
+  
+        // Update sharing directly
+        const updatedSharing = await Sharing.findOneAndUpdate(
+            { account: userId },
+            { $push: { notes: noteId } },
+            { new: true }
+        );
+  
+        if (!updatedSharing) {
+            return res.status(404).json({
+                success: false,
+                message: 'Sharing record not found for this user'
+            });
+        }
+  
+        res.json({ 
+            success: true, 
+            message: 'Sharing updated successfully',
+            data: updatedSharing
+        });
+  
+    } catch (error) {
+        console.error('Error in accept route:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Internal server error' 
+        });
+    }
+  });
 // 2. API cập nhật note
 router.put('/:id', async (req, res) => {
     try {
@@ -66,8 +105,9 @@ router.get('/:ownerId', async (req, res) => {
 
 // 5. API lấy danh sách note được share
 router.get('/shared-notes/:userId', async (req, res) => {
+    const userId = req.params.userId;
     try {
-        const notes = await Sharing.findById({id:req.params.userId}).populate('notes');
+        const notes = await Sharing.findOne({account:userId}).populate('notes');
         res.json(notes);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching shared notes', error: error.message });
@@ -86,11 +126,12 @@ router.post('/share', async (req, res) => {
         await sendQueueWithPayload({ email, noteId, ownerId }); // Truyền ownerId vào payload
 
 
-        res.json({ message: 'Shared successfully' });
+        return res.json({ message: 'Shared successfully' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
 
+  
 module.exports = router;
