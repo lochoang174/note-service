@@ -8,6 +8,7 @@ let app = express();
 const receiveQueue = require('./queue/consumer');
 const note = require("./routes/Note.route")
 const cors = require('cors');
+const verifyToken= require('@hieuga678902003/verifytoken')
 
 app.use(cors({
   origin: '*',

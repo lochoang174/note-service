@@ -6,11 +6,11 @@ var SharingSchema = new Schema({
         type: String,
         required: true
     },
-  notes: [{
+  notes: {
     type: [Schema.Types.ObjectId],
     ref: 'Note',
     required: true
-  }],
+  },
 
 
 },{

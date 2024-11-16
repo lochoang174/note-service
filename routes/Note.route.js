@@ -3,8 +3,10 @@ const router = express.Router();
 const Note = require('../models/Note'); // Thay đổi model thành Note
 const Sharing = require('../models/Sharing');
 const { sendQueueWithPayload } = require('../queue/queueWithPayload');
+const verifyToken= require('@hieuga678902003/verifytoken')
+
 // 1. API tạo note mới
-router.post('/', async (req, res) => {
+router.post('/',verifyToken, async (req, res) => {
     try {
         const { title, content, owner,status } = req.body;
         const note = new Note({
@@ -45,11 +47,13 @@ router.get('/accept', async (req, res) => {
             });
         }
   
-        res.json({ 
-            success: true, 
-            message: 'Sharing updated successfully',
-            data: updatedSharing
-        });
+        res.redirect('http://localhost');
+
+        // res.json({ 
+        //     success: true, 
+        //     message: 'Sharing updated successfully',
+        //     data: updatedSharing
+        // });
   
     } catch (error) {
         console.error('Error in accept route:', error);
@@ -60,12 +64,12 @@ router.get('/accept', async (req, res) => {
     }
   });
 // 2. API cập nhật note
-router.put('/:id', async (req, res) => {
+router.put('/:id',verifyToken, async (req, res) => {
     try {
-        const { title, content } = req.body;
+        const { title, content,status } = req.body;
         const note = await Note.findByIdAndUpdate(
             req.params.id,
-            { title, content },
+            { title, content,status },
             { new: true }
         );
         if (!note) {
@@ -78,7 +82,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // 3. API xóa note
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',verifyToken, async (req, res) => {
     try {
         const note = await Note.findByIdAndDelete(req.params.id);
         if (!note) {
@@ -91,7 +95,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // 4. API lấy danh sách note của owner
-router.get('/:ownerId', async (req, res) => {
+router.get('/:ownerId',verifyToken, async (req, res) => {
     try {
         const notes = await Note.find({ owner: req.params.ownerId });
         if(notes.length == 0){
@@ -104,7 +108,7 @@ router.get('/:ownerId', async (req, res) => {
 });
 
 // 5. API lấy danh sách note được share
-router.get('/shared-notes/:userId', async (req, res) => {
+router.get('/shared-notes/:userId',verifyToken, async (req, res) => {
     const userId = req.params.userId;
     try {
         const notes = await Sharing.findOne({account:userId}).populate('notes');
@@ -113,7 +117,7 @@ router.get('/shared-notes/:userId', async (req, res) => {
         res.status(500).json({ message: 'Error fetching shared notes', error: error.message });
     }
 });
-router.post('/share', async (req, res) => {
+router.post('/share',verifyToken, async (req, res) => {
     const { email, noteId } = req.body;
     try {
         const note = await Note.findById(noteId).exec();

@@ -14,25 +14,6 @@ const receiveQueue = async () => {
 
     // Assert the queues
     await channel.assertQueue(signupQueue, { durable: false });
-    // await channel.assertQueue(acceptQueue, { durable: false });
-    // await channel.assertQueue(acceptQueue, { durable: false });
-    // channel.consume(acceptQueue, async (msg) => {
-    //   if (msg !== null) {
-    //     console.log("Received message from accept_queue:", msg.content.toString());
-        
-    //     try {
-    //       const data = JSON.parse(msg.content.toString());
-    //       const { userId, noteId } = data;
-          
-    //       Sharing.updateOne({ account: userId }, { $push: { noteId: noteId } });          
-    //       // You can now use userId and noteId for further processing
-          
-    //     } catch (err) {
-    //       console.error('Error processing accept message:', err);
-    //     }
-    //   }
-    // }, { noAck: true });
-
     // Consume from signup queue
     channel.consume(signupQueue, async (msg) => {
       if (msg !== null) {
@@ -42,12 +23,12 @@ const receiveQueue = async () => {
         
         try {
           // Create Notes for user
-          await Note.create({ title: 'test', content: 'test', owner: userId, status: '0' });
-          await Note.create({ title: 'test', content: 'test', owner: userId, status: '1' });
-          await Note.create({ title: 'test', content: 'test', owner: userId, status: '2' });
+          await Note.create({ title: 'Store important information ', content: 'Detailed content of the important note.', owner: userId, status: '1' });
+          await Note.create({ title: 'Store important code', content: 'Code snippet or description of the code-related note.', owner: userId, status: '1' });
+          await Note.create({ title: 'Store urgent information', content: 'Detailed content of the urgent note.', owner: userId, status: '1' });
 
           // Create Sharing
-          await Sharing.create({ account: userId, noteId: [] });
+          await Sharing.create({ account: userId, notes: [] });
 
           console.log('Note and Sharing created successfully for user:', userId);
           
